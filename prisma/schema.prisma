@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                  String   @id @default(cuid())
+  name                String
+  email               String   @unique
+  password            String
+  role                String   @default("pasien")
+  specialty           String?
+  avatarUrl           String?
+  sugarDailyLimit     Float    @default(50)
+  notificationEnabled Boolean  @default(true)
+  glucoseAlertEnabled Boolean  @default(true)
+  darkModeEnabled     Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  glucoseReadings      GlucoseReading[]
+  consumptions         Consumption[]
+  consultationsPatient Consultation[]   @relation("PatientConsultations")
+  consultationsDoctor  Consultation[]   @relation("DoctorConsultations")
+  notifications        Notification[]
+  articleBookmarks     ArticleBookmark[]
+}
+
+model GlucoseReading {
+  id            String   @id @default(cuid())
+  userId        String
+  sessionId     String?
+  glucoseValue  Float
+  glucoseUnit   String   @default("mg/dL")
+  glucoseStatus String
+  bpm           Float?
+  irAvg         Float?
+  redAvg        Float?
+  deviceStatus  String?
+  measuredAt    DateTime
+  receivedAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Consumption {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  type      String
+  calories  Int
+  carbs     Float?
+  protein   Float?
+  fat       Float?
+  imageUri  String?
+  barcode   String?
+  ocrText   String?
+  sugarLabel String?
+  date      String
+  time      String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Consultation {
+  id              String   @id @default(cuid())
+  patientId       String
+  patientName     String?
+  doctorId        String
+  doctorName      String?
+  doctorSpecialty String?
+  date            String
+  time            String
+  notes           String?
+  status          String   @default("scheduled")
+  createdAt       DateTime @default(now())
+
+  patient User @relation("PatientConsultations", fields: [patientId], references: [id])
+  doctor  User @relation("DoctorConsultations", fields: [doctorId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  message   String
+  type      String   @default("info")
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  timeLabel String
+  imageUrl  String
+  author    String
+  date      String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  bookmarks ArticleBookmark[]
+}
+
+model ArticleBookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  articleId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id])
+  article Article @relation(fields: [articleId], references: [id])
+
+  @@unique([userId, articleId])
+}
