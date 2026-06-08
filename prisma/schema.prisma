@@ -15,6 +15,7 @@ model User {
   role                String   @default("pasien")
   specialty           String?
   avatarUrl           String?
+  whatsapp            String?
   sugarDailyLimit     Float    @default(50)
   notificationEnabled Boolean  @default(true)
   glucoseAlertEnabled Boolean  @default(true)

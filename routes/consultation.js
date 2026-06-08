@@ -9,7 +9,7 @@ router.get('/doctors', async (req, res) => {
   try {
     const doctors = await prisma.user.findMany({
       where: { role: 'dokter' },
-      select: { id: true, name: true, specialty: true, avatarUrl: true }
+      select: { id: true, name: true, specialty: true, avatarUrl: true, whatsapp: true }
     });
     res.json(doctors);
   } catch (error) {

@@ -1,6 +1,6 @@
 const { GoogleGenAI } = require('@google/genai');
 
-const TEXT_MODELS = ['gemini-2.5-flash-lite'];
+const TEXT_MODELS = ['gemma-2-9b-it', 'gemini-2.5-flash-lite'];
 const VISION_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
 
 const TEXT_SYSTEM_INSTRUCTION = `Namamu adalah Daeng Te'ne, asisten edukasi diabetes dan nutrisi yang dibuat oleh Raffi Agent.
@@ -313,10 +313,16 @@ async function analyzeImage({ base64Image, mimeType, userNote = '' }) {
   const prompt = `${VISION_SYSTEM_INSTRUCTION}
 
 Tugas: analisa gambar makanan atau minuman ini untuk edukasi pengurangan risiko diabetes.
-Berikan estimasi range gula (gram) dan karbo (gram) yang masuk akal, sertakan alasan.
-Jika tidak yakin, buat range lebih lebar dan minta info tambahan.
+Berikan estimasi gula (gram), karbo (gram), kalori, protein, dan lemak yang masuk akal.
+Sertakan alasan. Jika tidak yakin, buat range lebih lebar.
 
-Catatan user: ${note || '(tidak ada)'}`;
+Catatan user: ${note || '(tidak ada)'}
+
+---
+INSTRUKSI SISTEM WAJIB:
+Di baris paling bawah dari seluruh jawabanmu, kamu HARUS menyertakan data JSON dengan format persis seperti di bawah ini, tanpa awalan/akhiran tambahan:
+[GLUKO_FOOD_DATA: {"title": "Nama Makanan", "calories": 100, "carbs": 20, "protein": 5, "fat": 2}]
+Angka harus berupa nilai pasti (bukan range). Jika tidak tahu, isi 0. Wajib ada tanda kurung siku pembuka dan penutup.`;
 
   let lastError = null;
 

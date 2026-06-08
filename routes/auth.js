@@ -12,6 +12,7 @@ const userSelect = {
   role: true,
   specialty: true,
   avatarUrl: true,
+  whatsapp: true,
   sugarDailyLimit: true,
   notificationEnabled: true,
   glucoseAlertEnabled: true,
@@ -20,7 +21,7 @@ const userSelect = {
 
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, role, specialty } = req.body;
+    const { name, email, password, role, specialty, whatsapp } = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ error: 'Name, email, and password are required' });
@@ -42,6 +43,7 @@ router.post('/register', async (req, res) => {
         email: email.toLowerCase(),
         password,
         role: userRole,
+        whatsapp: whatsapp || null,
         specialty: userRole === 'dokter' ? specialty || 'Umum' : null
       }
     });
@@ -134,6 +136,7 @@ router.put('/me', authMiddleware, async (req, res) => {
       email,
       specialty,
       avatarUrl,
+      whatsapp,
       sugarDailyLimit,
       notificationEnabled,
       glucoseAlertEnabled,
@@ -173,6 +176,10 @@ router.put('/me', authMiddleware, async (req, res) => {
 
     if (typeof avatarUrl === 'string') {
       data.avatarUrl = avatarUrl.trim() || null;
+    }
+
+    if (typeof whatsapp === 'string') {
+      data.whatsapp = whatsapp.trim() || null;
     }
 
     if (sugarDailyLimit !== undefined) {
